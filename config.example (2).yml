@@ -1,16 +1,16 @@
 # Configuration personnelle — NE PAS PARTAGER
 
 synology:
-  host: "http://192.168.1.142"
+  host: "http://192.168.X.X"
   port: 5000
-  username: "robot"
-  password: "2=P#9MKn"
+  username: "script_user"
+  password: "your_password"
   # otp_secret: "XXXX"
 
 album:
   name_prefix: "Album du jour"
   photo_count: 50
-  share_with: "voonet,Candice,lou" 
+  share_with: "user1,user2,user3"
 
 cache:
   # Reconstruit l'index si le cache a plus de N heures

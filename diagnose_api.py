@@ -76,7 +76,7 @@ methods_to_try = ["list", "get", "set", "create", "delete", "info",
                   "update", "count", "add_item", "share", "publish",
                   "get_passphrase", "generate"]
 
-PHOTO_IDS = [1, 2, 3, 4]  # voonet=1, lou=2, Candice=3, Monique=4
+PHOTO_IDS = [1, 2, 3, 4]
 
 def post_probe(api, method, version=1, **params):
     r = requests.post(

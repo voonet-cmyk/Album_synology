@@ -90,7 +90,7 @@ def _resolve_connection(host: str, port: int) -> tuple[str, bool]:
     - *.quickconnect.to             → interroge l'API QuickConnect
     - autre FQDN                    → utilise telle quelle, verify=True
     """
-    # Cas 1 : IP directe ou localhost (ex: http://192.168.1.50 ou http://127.0.0.1)
+    # Cas 1 : IP directe ou localhost (ex: http://192.168.X.X ou http://127.0.0.1)
     if re.match(r"https?://(localhost|127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)", host):
         base = f"{host.rstrip('/')}:{port}"
         log.debug("Connexion directe (locale) : %s", base)
@@ -188,7 +188,7 @@ def _resolve_quickconnect(qc_id: str, preferred_https_port: int) -> tuple[str, b
     raise ConnectionError(
         f"Aucune route trouvée vers le NAS '{qc_id}'.\n"
         "Conseil : note l'IP locale du NAS (depuis DSM > Panneau de configuration >\n"
-        "Réseau) et remplace l'URL dans config.yml par ex: http://192.168.1.50"
+        "Réseau) et remplace l'URL dans config.yml par ex: http://192.168.X.X"
     )
 
 

@@ -26,7 +26,7 @@ Synology Photos le matin et les nouvelles photos sont là.
 | **NAS Synology avec DSM 7.2 ou plus récent** | DSM est le système d'exploitation du NAS. La version 7.2 apporte l'API Photos dont le script a besoin. |
 | **Application Synology Photos installée** | C'est l'application de gestion de photos sur le NAS, disponible gratuitement dans le Centre de paquets. |
 | **Python 3.9 ou plus** | Python est le langage dans lequel le script est écrit. Tu l'installes depuis le Centre de paquets du NAS (paquet nommé "Python 3"). |
-| **Deux comptes utilisateurs sur le NAS** | `voonet` : ton compte personnel pour SSH et l'installation. `robot` : compte dédié que le script utilise pour accéder à l'API Photos. Le compte `robot` doit avoir accès à l'espace partagé Synology Photos. |
+| **Deux comptes utilisateurs sur le NAS** | `your_user` : ton compte personnel pour SSH et l'installation. `script_user` : compte dédié que le script utilise pour accéder à l'API Photos. Le compte `script_user` doit avoir accès à l'espace partagé Synology Photos. |
 
 ---
 
@@ -64,7 +64,7 @@ SSH est un système qui te permet de donner des commandes au NAS depuis ton PC, 
 > de compatibilité d'algorithmes avec certains NAS Synology. PuTTY est plus fiable.
 
 **Ouvre PuTTY** et configure la connexion :
-- Host Name : `192.168.1.142` (remplace par l'IP de ton NAS)
+- Host Name : `192.168.X.X` (remplace par l'IP de ton NAS)
 - Port : `22`
 - Connection type : `SSH`
 - Clique sur **Open**
@@ -72,12 +72,12 @@ SSH est un système qui te permet de donner des commandes au NAS depuis ton PC, 
 > 📺 *La première fois, PuTTY affiche une alerte de sécurité sur la clé du serveur.
 > Clique sur "Accept". Une fenêtre noire s'ouvre et demande ton identifiant.*
 
-Entre ton nom d'utilisateur (`voonet`) puis ton mot de passe
+Entre ton nom d'utilisateur (`your_user`) puis ton mot de passe
 (les caractères n'apparaissent pas à l'écran, c'est normal).
 
 Tu es connecté quand tu vois une ligne qui ressemble à :
 ```
-voonet@DiskStation:~$
+your_user@DiskStation:~$
 ```
 
 > Tu trouves l'IP du NAS dans DSM → Panneau de configuration → Réseau → Général.
@@ -91,19 +91,19 @@ voonet@DiskStation:~$
 >
 > | Ce que tu vois dans File Station | Ce que tu tapes en SSH |
 > |---|---|
-> | `home/download/MonDossier` | `/volume1/homes/voonet/download/MonDossier` |
-> | `home/Job/MonDossier` | `/volume1/homes/voonet/Job/MonDossier` |
+> | `home/download/MonDossier` | `/volume1/homes/YOUR_USER/download/MonDossier` |
+> | `home/Job/MonDossier` | `/volume1/homes/YOUR_USER/Job/MonDossier` |
 >
-> En pratique : remplace `home/` par `/volume1/homes/voonet/` pour obtenir le chemin SSH.
+> En pratique : remplace `home/` par `/volume1/homes/YOUR_USER/` pour obtenir le chemin SSH.
 
 **Sur ton PC Windows**, ouvre une fenêtre PowerShell (touche Windows → "PowerShell") et tape :
 
 ```powershell
-scp -r "C:\Users\voone\Claude\Album" voonet@192.168.1.142:/volume1/homes/voonet/download/AlbumPhotoAuto
+scp -r "C:\Users\YOUR_USERNAME\Claude\Album" your_user@192.168.X.X:/volume1/homes/YOUR_USER/download/AlbumPhotoAuto
 ```
 
-Adapte `C:\Users\voone\Claude\Album` au dossier où se trouve le projet sur ton PC,
-et `192.168.1.142` à l'adresse IP de ton NAS.
+Adapte `C:\Users\YOUR_USERNAME\Claude\Album` au dossier où se trouve le projet sur ton PC,
+et `192.168.X.X` à l'adresse IP de ton NAS.
 
 > 📺 *PowerShell affiche les fichiers au fur et à mesure de la copie, avec leur taille.
 > Quand c'est terminé, la commande rend la main sans message d'erreur.*
@@ -112,15 +112,15 @@ et `192.168.1.142` à l'adresse IP de ton NAS.
 
 ### Étape D — Lancer le script d'installation
 
-**Dans la fenêtre PuTTY connectée au NAS** (celle qui affiche `voonet@DiskStation:~$`) :
+**Dans la fenêtre PuTTY connectée au NAS** (celle qui affiche `your_user@DiskStation:~$`) :
 
 ```bash
-cd /volume1/homes/voonet/download/AlbumPhotoAuto
+cd /volume1/homes/YOUR_USER/download/AlbumPhotoAuto
 bash scripts/install_on_dsm.sh
 ```
 
 > 📺 *Le script affiche sa progression avec des coches vertes (✓). Il crée le répertoire
-> `/volume1/homes/voonet/Job/AlbumPhotoAuto/`, installe Python dans un espace isolé, et
+> `/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/`, installe Python dans un espace isolé, et
 > copie tous les fichiers nécessaires. À la fin, il affiche un récapitulatif des
 > commandes à utiliser.*
 
@@ -138,7 +138,7 @@ Le script d'installation a créé un fichier `config.yml` vierge à remplir.
 Ouvre-le avec l'éditeur de texte intégré :
 
 ```bash
-nano /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml
+nano /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
 
 > (Dans File Station, ce dossier est visible sous `home/Job/AlbumPhotoAuto/`)
 ```
@@ -147,18 +147,18 @@ nano /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml
 > Quand tu as fini, appuie sur `Ctrl+X`, puis `O` (oui pour sauvegarder), puis `Entrée`.*
 
 > **Note sur les comptes :** Il y a deux comptes distincts sur le NAS.
-> - `voonet` : ton compte personnel, utilisé pour la connexion SSH et l'installation.
-> - `robot` : compte dédié utilisé par le script pour accéder à l'API Synology Photos.
-> Ces deux choses sont indépendantes. Ici tu renseignes les identifiants du compte `robot`.
+> - `your_user` : ton compte personnel, utilisé pour la connexion SSH et l'installation.
+> - `script_user` : compte dédié utilisé par le script pour accéder à l'API Synology Photos.
+> Ces deux choses sont indépendantes. Ici tu renseignes les identifiants du compte `script_user`.
 
 Remplis **au minimum** ces quatre lignes :
 
 ```yaml
 synology:
-  host: "http://192.168.1.142"   # ← l'adresse IP de ton NAS
+  host: "http://192.168.X.X"      # ← l'adresse IP de ton NAS
   port: 5000
-  username: "robot"              # ← le compte dédié script (≠ ton compte SSH voonet)
-  password: "ton_mot_de_passe"   # ← mot de passe du compte robot
+  username: "script_user"          # ← le compte dédié script (≠ ton compte SSH your_user)
+  password: "ton_mot_de_passe"     # ← mot de passe du compte script_user
 ```
 
 Voir la section **Configuration** plus bas pour le détail de tous les réglages.
@@ -168,9 +168,9 @@ Voir la section **Configuration** plus bas pour le détail de tous les réglages
 ### Étape F — Tester sans rien modifier
 
 ```bash
-/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python \
-  /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py \
-  --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml \
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
+  /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py \
+  --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml \
   --dry-run --debug
 ```
 
@@ -186,9 +186,9 @@ Voir la section **Configuration** plus bas pour le détail de tous les réglages
 Quand le test de simulation s'est bien passé, lance pour de vrai :
 
 ```bash
-/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python \
-  /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py \
-  --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml \
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
+  /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py \
+  --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml \
   --debug
 ```
 
@@ -232,7 +232,7 @@ C'est ce qui fait que le script se lance tout seul chaque matin.
 
 4. **Onglet Général** :
    - Nom de la tâche : `Album du jour`
-   - Utilisateur : sélectionne le compte `voonet`
+   - Utilisateur : sélectionne le compte `your_user`
    - Laisse "Activée" cochée
 
 5. **Onglet Planifier** :
@@ -244,7 +244,7 @@ C'est ce qui fait que le script se lance tout seul chaque matin.
    - Dans le champ **Exécuter la commande**, colle exactement :
 
    ```
-   /volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml
+   /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
    ```
 
    > 📺 *C'est une seule ligne, sans retour à la ligne. Si tu as installé dans un
@@ -281,17 +281,17 @@ Pour voir le résultat détaillé de l'exécution :
 Le script écrit un journal détaillé à cet emplacement :
 
 ```
-/volume1/homes/voonet/Job/AlbumPhotoAuto/logs/album.log
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 
 **Pour le lire depuis SSH :**
 ```bash
-tail -50 /volume1/homes/voonet/Job/AlbumPhotoAuto/logs/album.log
+tail -50 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 (affiche les 50 dernières lignes — celles du dernier lancement)
 
 **Pour le lire depuis DSM :**
-Ouvre **File Station**, navigue vers `/volume1/homes/voonet/Job/AlbumPhotoAuto/logs/`,
+Ouvre **File Station**, navigue vers `/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/`,
 double-clique sur `album.log`.
 
 Une ligne d'erreur ressemble à :
@@ -308,9 +308,9 @@ Voici le fichier expliqué ligne par ligne. Les lignes qui commencent par `#` so
 
 ```yaml
 synology:
-  host: "http://192.168.1.50"    # L'adresse IP de ton NAS sur le réseau local
+  host: "http://192.168.X.X"      # L'adresse IP de ton NAS sur le réseau local
   port: 5000                      # 5000 = connexion standard, 5001 = connexion chiffrée (HTTPS)
-  username: "robot"               # Le compte dédié qui se connecte pour créer les albums (≠ ton compte SSH voonet)
+  username: "script_user"         # Le compte dédié qui se connecte pour créer les albums (≠ ton compte SSH your_user)
   password: "mon_mot_de_passe"    # Son mot de passe — ne partage JAMAIS ce fichier
 
 album:
@@ -385,9 +385,9 @@ Si tu as des dossiers que tu ne veux jamais voir dans les albums (numérisations
 Après avoir modifié cette liste, relance avec `--rebuild-index` pour reconstruire la liste des photos :
 
 ```bash
-/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python \
-  /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py \
-  --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml \
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
+  /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py \
+  --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml \
   --rebuild-index --dry-run
 ```
 
@@ -416,9 +416,9 @@ Pour alterner uniquement anniversaires et saison :
 ### Forcer un thème manuellement (pour tester)
 
 ```bash
-PYTHON=/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python
-MAIN=/volume1/homes/voonet/Job/AlbumPhotoAuto/main.py
-CONFIG=/volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml
+PYTHON=/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python
+MAIN=/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py
+CONFIG=/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
 
 $PYTHON $MAIN --config $CONFIG --theme random
 $PYTHON $MAIN --config $CONFIG --theme anniversary
@@ -432,15 +432,15 @@ $PYTHON $MAIN --config $CONFIG --theme season
 ### 1. Regarder les logs
 
 ```bash
-tail -50 /volume1/homes/voonet/Job/AlbumPhotoAuto/logs/album.log
+tail -50 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 
 ### 2. Relancer manuellement en mode verbeux
 
 ```bash
-/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python \
-  /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py \
-  --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml \
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
+  /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py \
+  --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml \
   --debug
 ```
 
@@ -449,9 +449,9 @@ Un message `ERROR` ou `WARNING` indique où ça coince.
 ### 3. Tester la connexion sans rien modifier
 
 ```bash
-/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python \
-  /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py \
-  --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml \
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
+  /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py \
+  --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml \
   --dry-run --debug
 ```
 
@@ -460,9 +460,9 @@ Un message `ERROR` ou `WARNING` indique où ça coince.
 Si le script dit que l'index est vide ou qu'aucune photo n'est trouvée :
 
 ```bash
-/volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python \
-  /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py \
-  --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml \
+/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
+  /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py \
+  --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml \
   --rebuild-index --debug
 ```
 
@@ -471,7 +471,7 @@ Si le script dit que l'index est vide ou qu'aucune photo n'est trouvée :
 | Symptôme | Cause probable | Solution |
 |---|---|---|
 | `Erreur d'authentification` | Mauvais identifiant ou mot de passe | Vérifie `username` et `password` dans `config.yml` |
-| `L'index est vide` | Le compte n'a pas accès à l'espace partagé | Dans Synology Photos → Paramètres → Espace partagé → Autorisations, ajoute le compte `robot` |
+| `L'index est vide` | Le compte n'a pas accès à l'espace partagé | Dans Synology Photos → Paramètres → Espace partagé → Autorisations, ajoute le compte `script_user` |
 | `Erreur de configuration` | `config.yml` mal rempli ou absent | Vérifie que le fichier existe et que toutes les sections sont présentes |
 | Les albums ne sont plus partagés | L'album a été supprimé et recréé manuellement | Reconfigurer le partage dans Synology Photos (voir Étape H) |
 | Aucune photo pour le thème anniversaire | Pas de photos à cette date dans les années passées | Normal : le script bascule automatiquement sur le thème aléatoire |
@@ -502,11 +502,11 @@ Si le script dit que l'index est vide ou qu'aucune photo n'est trouvée :
 INSTALLATION
   [ ] A. SSH activé dans DSM (Panneau de configuration → Terminal et SNMP)
   [ ] B. PuTTY installé, connexion SSH testée avec succès
-           PuTTY → Host: 192.168.1.142, Port: 22 → connecté en voonet
+           PuTTY → Host: 192.168.X.X, Port: 22 → connecté en your_user
   [ ] C. Projet copié sur le NAS avec scp (depuis PowerShell sur le PC)
-           scp -r "C:\...\Album" voonet@NAS_IP:/volume1/homes/voonet/download/AlbumPhotoAuto
+           scp -r "C:\...\Album" your_user@NAS_IP:/volume1/homes/YOUR_USER/download/AlbumPhotoAuto
   [ ] D. Script d'installation lancé sans erreur rouge (depuis PuTTY sur le NAS)
-           cd /volume1/homes/voonet/download/AlbumPhotoAuto
+           cd /volume1/homes/YOUR_USER/download/AlbumPhotoAuto
            bash scripts/install_on_dsm.sh
   [ ] E. config.yml rempli avec l'IP, le compte et le mot de passe du NAS
 
@@ -523,14 +523,14 @@ TEST
 
 AUTOMATISATION
   [ ] I. Tâche planifiée créée dans DSM (Planificateur de tâches)
-           Utilisateur : voonet
+           Utilisateur : your_user
            Heure       : 06:00
-           Commande    : /volume1/homes/voonet/Job/AlbumPhotoAuto/.venv/bin/python
-                         /volume1/homes/voonet/Job/AlbumPhotoAuto/main.py
-                         --config /volume1/homes/voonet/Job/AlbumPhotoAuto/config.yml
+           Commande    : /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python
+                         /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py
+                         --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
   [ ] J. "Exécuter maintenant" testé → album mis à jour dans Synology Photos
   [ ] K. Logs vérifiés (aucune ligne ERROR)
-           /volume1/homes/voonet/Job/AlbumPhotoAuto/logs/album.log
+           /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 
 ```

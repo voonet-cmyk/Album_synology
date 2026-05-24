@@ -11,7 +11,7 @@ synology:
 album:
   name_prefix: "Album du jour"   # Préfixe visible dans Synology Photos
   photo_count: 30                 # Nombre de photos par album
-  # share_with: "voonet,Candice,lou"   # Usernames séparés par virgule → partage restreint
+  # share_with: "user1,user2,user3"     # Usernames séparés par virgule → partage restreint
   #                                    # Laisser vide (ou absent) → lien public via passphrase
 
 cache:

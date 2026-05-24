@@ -7,18 +7,18 @@
 #   bash scripts/install_on_dsm.sh /volume2/scripts/album  # chemin personnalisé
 #
 # Ce script doit être lancé DEPUIS LE RÉPERTOIRE RACINE DU PROJET :
-#   cd /volume1/homes/voonet/download/AlbumPhotoAuto
+#   cd /volume1/homes/YOUR_USER/download/AlbumPhotoAuto
 #   bash scripts/install_on_dsm.sh
 #
 # Note sur les chemins : DSM File Station affiche "home/download/AlbumPhotoAuto"
-# mais SSH utilise le chemin complet "/volume1/homes/voonet/download/AlbumPhotoAuto".
+# mais SSH utilise le chemin complet "/volume1/homes/YOUR_USER/download/AlbumPhotoAuto".
 # =============================================================================
 
 set -euo pipefail
 
 # ── Paramètres ────────────────────────────────────────────────────────────────
 
-DEST="${1:-/volume1/homes/voonet/Job/AlbumPhotoAuto}"
+DEST="${1:-/volume1/homes/${USER:-YOUR_USER}/Job/AlbumPhotoAuto}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PYTHON=""
 
@@ -111,7 +111,7 @@ else
     echo ""
     warn "IMPORTANT : ouvre $DEST/config.yml et remplis :"
     warn "  synology.host     → l'adresse IP de ton NAS"
-    warn "  synology.username → le compte qui crée les albums (ex: robot)"
+    warn "  synology.username → le compte qui crée les albums (ex: script_user)"
     warn "  synology.password → son mot de passe"
 fi
 
