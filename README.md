@@ -1,171 +1,169 @@
-# 📸 Album du jour — Synology Photos
+# 📸 Daily Album — Synology Photos
 
-> Script Python qui crée automatiquement chaque matin un album photo sur ton NAS Synology,
-> en piochant des souvenirs selon le thème du jour : anniversaires de la même date,
-> photos de saison, ou sélection aléatoire dans toute la bibliothèque.
-
----
-
-## 🗓️ Comment ça marche au quotidien
-
-Chaque matin à l'heure que tu as choisie, le NAS lance le script tout seul. Le script
-se connecte à Synology Photos, sélectionne une trentaine de photos selon le thème du
-jour (un jour c'est des souvenirs d'il y a 1, 2, 5 ou 10 ans exactement ; un autre jour
-des photos du même mois toutes années confondues ; un autre jour une pioche aléatoire
-dans toute la bibliothèque), puis met à jour un album existant en remplaçant les photos
-de la veille par celles du jour. L'album reste au même endroit avec les mêmes personnes
-invitées — seules les photos changent. Il n'y a rien à faire de ta part : tu ouvres
-Synology Photos le matin et les nouvelles photos sont là.
+> A Python script that automatically creates a photo album on your Synology NAS every morning,
+> picking memories based on the theme of the day: anniversary photos from the same date,
+> seasonal photos, or a random selection from your entire library.
 
 ---
 
-## ✅ Prérequis
+## 🗓️ How it works day to day
 
-| Ce qu'il faut | Pourquoi |
+Every morning at the time you choose, the NAS runs the script automatically. The script
+connects to Synology Photos, selects around thirty photos based on the day's theme
+(one day it shows memories from exactly 1, 2, 5 or 10 years ago; another day photos
+from the same month across all years; another day a random draw from the full library),
+then updates an existing album by replacing yesterday's photos with today's.
+The album stays in the same place with the same invited people — only the photos change.
+You don't have to do anything: you open Synology Photos in the morning and the new photos are there.
+
+---
+
+## ✅ Requirements
+
+| What you need | Why |
 |---|---|
-| **NAS Synology avec DSM 7.2 ou plus récent** | DSM est le système d'exploitation du NAS. La version 7.2 apporte l'API Photos dont le script a besoin. |
-| **Application Synology Photos installée** | C'est l'application de gestion de photos sur le NAS, disponible gratuitement dans le Centre de paquets. |
-| **Python 3.9 ou plus** | Python est le langage dans lequel le script est écrit. Tu l'installes depuis le Centre de paquets du NAS (paquet nommé "Python 3"). |
-| **Deux comptes utilisateurs sur le NAS** | `your_user` : ton compte personnel pour SSH et l'installation. `script_user` : compte dédié que le script utilise pour accéder à l'API Photos. Le compte `script_user` doit avoir accès à l'espace partagé Synology Photos. |
+| **Synology NAS with DSM 7.2 or later** | DSM is the NAS operating system. Version 7.2 brings the Photos API the script needs. |
+| **Synology Photos app installed** | This is the photo management app on the NAS, available for free in Package Center. |
+| **Python 3.9 or later** | Python is the language the script is written in. Install it from Package Center (package named "Python 3"). |
+| **Two user accounts on the NAS** | `your_user`: your personal account for SSH and installation. `script_user`: a dedicated account the script uses to access the Photos API. The `script_user` account must have access to the Synology Photos shared space. |
 
 ---
 
-## 🖥️ Installation sur le NAS Synology
+## 🖥️ Installation on the Synology NAS
 
-Cette section détaille chaque étape depuis ton PC Windows jusqu'au premier lancement automatique.
-
----
-
-### Étape A — Activer SSH dans DSM
-
-SSH est un système qui te permet de donner des commandes au NAS depuis ton PC, comme si tu avais un clavier branché dessus.
-
-**Dans DSM :**
-
-1. Clique sur **Panneau de configuration** (icône de boîte à outils sur le bureau DSM)
-2. Dans la liste de gauche, clique sur **Terminal et SNMP**
-
-   > 📺 *Tu vois une page avec deux onglets : "Terminal" et "SNMP". Tu es sur le bon écran.*
-
-3. Coche la case **Activer le service SSH**
-4. Le port peut rester sur **22** (c'est la valeur standard)
-5. Clique sur **Appliquer**
-
-   > 📺 *Un message de confirmation s'affiche brièvement en bas de l'écran. SSH est maintenant actif.*
+This section walks through every step from your Windows PC to the first automated run.
 
 ---
 
-### Étape B — Installer PuTTY et se connecter en SSH depuis Windows
+### Step A — Enable SSH in DSM
 
-**Télécharge et installe PuTTY** (client SSH pour Windows) :
-[https://www.putty.org](https://www.putty.org) → bouton "Download PuTTY"
+SSH lets you send commands to the NAS from your PC, as if you had a keyboard plugged into it.
 
-> PowerShell dispose d'un client SSH intégré, mais il peut rencontrer des problèmes
-> de compatibilité d'algorithmes avec certains NAS Synology. PuTTY est plus fiable.
+**In DSM:**
 
-**Ouvre PuTTY** et configure la connexion :
-- Host Name : `192.168.X.X` (remplace par l'IP de ton NAS)
-- Port : `22`
-- Connection type : `SSH`
-- Clique sur **Open**
+1. Click **Control Panel** (toolbox icon on the DSM desktop)
+2. In the left sidebar, click **Terminal & SNMP**
 
-> 📺 *La première fois, PuTTY affiche une alerte de sécurité sur la clé du serveur.
-> Clique sur "Accept". Une fenêtre noire s'ouvre et demande ton identifiant.*
+   > 📺 *You see a page with two tabs: "Terminal" and "SNMP". You're in the right place.*
 
-Entre ton nom d'utilisateur (`your_user`) puis ton mot de passe
-(les caractères n'apparaissent pas à l'écran, c'est normal).
+3. Check the box **Enable SSH service**
+4. Leave the port at **22** (that's the standard value)
+5. Click **Apply**
 
-Tu es connecté quand tu vois une ligne qui ressemble à :
+   > 📺 *A confirmation message briefly appears at the bottom of the screen. SSH is now active.*
+
+---
+
+### Step B — Install PuTTY and connect via SSH from Windows
+
+**Download and install PuTTY** (SSH client for Windows):
+[https://www.putty.org](https://www.putty.org) → "Download PuTTY" button
+
+> PowerShell has a built-in SSH client, but it can run into algorithm compatibility issues
+> with some Synology NAS devices. PuTTY is more reliable.
+
+**Open PuTTY** and configure the connection:
+- Host Name: `192.168.X.X` (replace with your NAS IP address)
+- Port: `22`
+- Connection type: `SSH`
+- Click **Open**
+
+> 📺 *The first time, PuTTY shows a security alert about the server key.
+> Click "Accept". A black window opens and asks for your username.*
+
+Enter your username (`your_user`) then your password
+(characters don't appear on screen — that's normal).
+
+You're connected when you see a line like:
 ```
 your_user@DiskStation:~$
 ```
 
-> Tu trouves l'IP du NAS dans DSM → Panneau de configuration → Réseau → Général.
+> You can find the NAS IP in DSM → Control Panel → Network → General.
 
 ---
 
-### Étape C — Copier le projet sur le NAS
+### Step C — Copy the project to the NAS
 
-> **Note importante sur les chemins :** L'interface DSM File Station affiche des chemins
-> raccourcis, différents des chemins réels utilisés en SSH. La correspondance est :
+> **Important note about paths:** The DSM File Station interface shows shortened paths,
+> different from the actual paths used in SSH. The mapping is:
 >
-> | Ce que tu vois dans File Station | Ce que tu tapes en SSH |
+> | What you see in File Station | What you type in SSH |
 > |---|---|
-> | `home/download/MonDossier` | `/volume1/homes/YOUR_USER/download/MonDossier` |
-> | `home/Job/MonDossier` | `/volume1/homes/YOUR_USER/Job/MonDossier` |
+> | `home/download/MyFolder` | `/volume1/homes/YOUR_USER/download/MyFolder` |
+> | `home/Job/MyFolder` | `/volume1/homes/YOUR_USER/Job/MyFolder` |
 >
-> En pratique : remplace `home/` par `/volume1/homes/YOUR_USER/` pour obtenir le chemin SSH.
+> In practice: replace `home/` with `/volume1/homes/YOUR_USER/` to get the SSH path.
 
-**Sur ton PC Windows**, ouvre une fenêtre PowerShell (touche Windows → "PowerShell") et tape :
+**On your Windows PC**, open a PowerShell window (Windows key → "PowerShell") and type:
 
 ```powershell
 scp -r "C:\Users\YOUR_USERNAME\Claude\Album" your_user@192.168.X.X:/volume1/homes/YOUR_USER/download/AlbumPhotoAuto
 ```
 
-Adapte `C:\Users\YOUR_USERNAME\Claude\Album` au dossier où se trouve le projet sur ton PC,
-et `192.168.X.X` à l'adresse IP de ton NAS.
+Adjust `C:\Users\YOUR_USERNAME\Claude\Album` to the folder where the project is on your PC,
+and `192.168.X.X` to your NAS IP address.
 
-> 📺 *PowerShell affiche les fichiers au fur et à mesure de la copie, avec leur taille.
-> Quand c'est terminé, la commande rend la main sans message d'erreur.*
+> 📺 *PowerShell displays files as they are copied, with their sizes.
+> When done, the command returns to the prompt with no error message.*
 
 ---
 
-### Étape D — Lancer le script d'installation
+### Step D — Run the installation script
 
-**Dans la fenêtre PuTTY connectée au NAS** (celle qui affiche `your_user@DiskStation:~$`) :
+**In the PuTTY window connected to the NAS** (the one showing `your_user@DiskStation:~$`):
 
 ```bash
 cd /volume1/homes/YOUR_USER/download/AlbumPhotoAuto
 bash scripts/install_on_dsm.sh
 ```
 
-> 📺 *Le script affiche sa progression avec des coches vertes (✓). Il crée le répertoire
-> `/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/`, installe Python dans un espace isolé, et
-> copie tous les fichiers nécessaires. À la fin, il affiche un récapitulatif des
-> commandes à utiliser.*
+> 📺 *The script displays its progress with green checkmarks (✓). It creates the directory
+> `/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/`, installs Python in an isolated environment,
+> and copies all the necessary files. At the end, it shows a summary of commands to use.*
 
-En cas de répertoire d'installation différent, tu peux le préciser :
+If you want a different installation directory, you can specify it:
 
 ```bash
-bash scripts/install_on_dsm.sh /volume2/mes-scripts/album
+bash scripts/install_on_dsm.sh /volume2/my-scripts/album
 ```
 
 ---
 
-### Étape E — Remplir le fichier de configuration
+### Step E — Fill in the configuration file
 
-Le script d'installation a créé un fichier `config.yml` vierge à remplir.
-Ouvre-le avec l'éditeur de texte intégré :
+The installation script has created a blank `config.yml` file to fill in.
+Open it with the built-in text editor:
 
 ```bash
 nano /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
 
-> (Dans File Station, ce dossier est visible sous `home/Job/AlbumPhotoAuto/`)
+> (In File Station, this folder is visible as `home/Job/AlbumPhotoAuto/`)
 ```
 
-> 📺 *L'éditeur nano s'ouvre dans le terminal. Les touches fléchées déplacent le curseur.
-> Quand tu as fini, appuie sur `Ctrl+X`, puis `O` (oui pour sauvegarder), puis `Entrée`.*
+> 📺 *The nano editor opens in the terminal. Arrow keys move the cursor.
+> When you're done, press `Ctrl+X`, then `Y` (yes to save), then `Enter`.*
 
-> **Note sur les comptes :** Il y a deux comptes distincts sur le NAS.
-> - `your_user` : ton compte personnel, utilisé pour la connexion SSH et l'installation.
-> - `script_user` : compte dédié utilisé par le script pour accéder à l'API Synology Photos.
-> Ces deux choses sont indépendantes. Ici tu renseignes les identifiants du compte `script_user`.
+> **Note about accounts:** There are two distinct accounts on the NAS.
+> - `your_user`: your personal account, used for SSH and installation.
+> - `script_user`: the dedicated account used by the script to access the Synology Photos API.
+> These two things are separate. Here you fill in the credentials for the `script_user` account.
 
-Remplis **au minimum** ces quatre lignes :
+Fill in **at minimum** these four lines:
 
 ```yaml
 synology:
-  host: "http://192.168.X.X"      # ← l'adresse IP de ton NAS
+  host: "http://192.168.X.X"      # ← your NAS IP address
   port: 5000
-  username: "script_user"          # ← le compte dédié script (≠ ton compte SSH your_user)
-  password: "ton_mot_de_passe"     # ← mot de passe du compte script_user
+  username: "script_user"          # ← the dedicated script account (≠ your SSH account your_user)
+  password: "your_password"        # ← the script_user account password
 ```
 
-Voir la section **Configuration** plus bas pour le détail de tous les réglages.
+See the **Configuration** section below for details on all settings.
 
 ---
 
-### Étape F — Tester sans rien modifier
+### Step F — Test without changing anything
 
 ```bash
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
@@ -174,16 +172,16 @@ Voir la section **Configuration** plus bas pour le détail de tous les réglages
   --dry-run --debug
 ```
 
-> 📺 *Le terminal affiche chaque action que le script AURAIT faite, sans toucher au NAS.
-> La dernière ligne doit afficher "SIMULATION TERMINEE" avec le nombre de photos
-> sélectionnées. Si tu vois "ERREUR", lis le message : il dit exactement ce qui
-> ne va pas (mauvais mot de passe, IP incorrecte, etc.).*
+> 📺 *The terminal shows each action the script WOULD have taken, without touching the NAS.
+> The last line should display "SIMULATION COMPLETE" with the number of photos selected.
+> If you see "ERROR", read the message: it tells you exactly what's wrong
+> (wrong password, incorrect IP, etc.).*
 
 ---
 
-### Étape G — Premier vrai lancement
+### Step G — First real run
 
-Quand le test de simulation s'est bien passé, lance pour de vrai :
+When the simulation test went well, run for real:
 
 ```bash
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
@@ -192,197 +190,197 @@ Quand le test de simulation s'est bien passé, lance pour de vrai :
   --debug
 ```
 
-Les albums apparaissent dans Synology Photos (section Albums). Va les partager
-manuellement avec les personnes de ton choix (voir Étape H).
+Albums appear in Synology Photos (Albums section). Go share them
+manually with the people of your choice (see Step H).
 
 ---
 
-### Étape H — Configurer le partage des albums (une seule fois)
+### Step H — Configure album sharing (one-time setup)
 
-1. Ouvre **Synology Photos** dans ton navigateur
-2. Va dans la section **Albums** dans le menu de gauche
+1. Open **Synology Photos** in your browser
+2. Go to the **Albums** section in the left menu
 
-   > 📺 *Tu vois les albums créés : "Album du jour — Anniversaires", "Album du jour — Saison", "Album du jour — Aleatoire". Il peut en manquer si le thème du jour n'a pas encore tourné — c'est normal.*
+   > 📺 *You see the created albums: "Daily Album — Anniversaries", "Daily Album — Season", "Daily Album — Random". Some may be missing if that day's theme hasn't run yet — that's normal.*
 
-3. Pour **chaque album**, clique dessus avec le bouton droit → **Partager**
-   (ou clique sur les trois points `⋯` qui apparaissent au survol)
-4. Dans la fenêtre de partage :
-   - Clique sur **Inviter des utilisateurs**
-   - Tape le nom du compte à inviter, sélectionne-le
-   - Règle le rôle sur **Visionneur**
-   - Clique sur **Enregistrer**
+3. For **each album**, right-click on it → **Share**
+   (or click the three dots `⋯` that appear on hover)
+4. In the sharing window:
+   - Click **Invite users**
+   - Type the account name to invite, select it
+   - Set the role to **Viewer**
+   - Click **Save**
 
-Le script ne touche jamais au partage. Les invités restent d'un jour à l'autre.
+The script never touches sharing settings. Invited users remain from one day to the next.
 
 ---
 
-### Étape I — Configurer la tâche planifiée dans DSM
+### Step I — Set up the scheduled task in DSM
 
-C'est ce qui fait que le script se lance tout seul chaque matin.
+This is what makes the script run automatically every morning.
 
-1. Dans DSM, clique sur **Panneau de configuration**
-2. Clique sur **Planificateur de tâches**
+1. In DSM, click **Control Panel**
+2. Click **Task Scheduler**
 
-   > 📺 *Une fenêtre s'ouvre avec la liste des tâches (elle peut être vide). La barre
-   > d'outils en haut propose : Créer / Modifier / Supprimer / Exécuter.*
+   > 📺 *A window opens with the task list (it may be empty). The toolbar
+   > at the top offers: Create / Edit / Delete / Run.*
 
-3. Clique sur **Créer → Tâche planifiée → Script défini par l'utilisateur**
+3. Click **Create → Scheduled Task → User-defined script**
 
-   > 📺 *Une fenêtre à trois onglets s'ouvre : Général / Planifier / Paramètres de la tâche.*
+   > 📺 *A window with three tabs opens: General / Schedule / Task Settings.*
 
-4. **Onglet Général** :
-   - Nom de la tâche : `Album du jour`
-   - Utilisateur : sélectionne le compte `your_user`
-   - Laisse "Activée" cochée
+4. **General tab**:
+   - Task name: `Daily Album`
+   - User: select the `your_user` account
+   - Leave "Enabled" checked
 
-5. **Onglet Planifier** :
-   - Exécuter : `Quotidien`
-   - Heure : `06:00` (ou l'heure de ton choix)
-   - Répéter : décoché (une seule fois par jour suffit)
+5. **Schedule tab**:
+   - Run: `Daily`
+   - Time: `06:00` (or the time of your choice)
+   - Repeat: unchecked (once a day is enough)
 
-6. **Onglet Paramètres de la tâche** :
-   - Dans le champ **Exécuter la commande**, colle exactement :
+6. **Task Settings tab**:
+   - In the **Run command** field, paste exactly:
 
    ```
    /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
    ```
 
-   > 📺 *C'est une seule ligne, sans retour à la ligne. Si tu as installé dans un
-   > répertoire différent, adapte les chemins en conséquence.*
+   > 📺 *This is a single line, no line break. If you installed in a different
+   > directory, adjust the paths accordingly.*
 
-   - Dans **Envoyer les informations d'exécution par e-mail**, tu peux entrer ton adresse
-     si tu veux être notifié en cas d'erreur.
+   - In **Send run details by email**, you can enter your address
+     if you want to be notified in case of an error.
 
-7. Clique sur **OK**
-
----
-
-### Étape J — Tester avec "Exécuter maintenant"
-
-Pour vérifier que la tâche planifiée fonctionne correctement sans attendre demain matin :
-
-1. Dans le **Planificateur de tâches**, clique sur la tâche `Album du jour` pour la sélectionner
-2. Clique sur **Exécuter** dans la barre d'outils
-
-   > 📺 *Une boîte de dialogue demande confirmation. Clique sur Oui. La tâche se lance
-   > en arrière-plan — aucune fenêtre ne s'ouvre, c'est normal.*
-
-3. Attends 30 secondes à 2 minutes selon la taille de ta bibliothèque
-4. Va dans Synology Photos → Albums : les photos de l'album ont changé
-
-Pour voir le résultat détaillé de l'exécution :
-- Dans le Planificateur de tâches, clique sur la tâche → **Résultats**
-- La colonne "Informations" indique si la tâche a réussi ou échoué
+7. Click **OK**
 
 ---
 
-### Étape K — Où trouver les logs en cas de problème
+### Step J — Test with "Run Now"
 
-Le script écrit un journal détaillé à cet emplacement :
+To verify the scheduled task works correctly without waiting until tomorrow morning:
+
+1. In **Task Scheduler**, click on the `Daily Album` task to select it
+2. Click **Run** in the toolbar
+
+   > 📺 *A dialog box asks for confirmation. Click Yes. The task runs
+   > in the background — no window opens, that's normal.*
+
+3. Wait 30 seconds to 2 minutes depending on the size of your library
+4. Go to Synology Photos → Albums: the album photos have changed
+
+To see the detailed execution result:
+- In Task Scheduler, click the task → **Results**
+- The "Information" column shows whether the task succeeded or failed
+
+---
+
+### Step K — Where to find logs in case of problems
+
+The script writes a detailed log at this location:
 
 ```
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 
-**Pour le lire depuis SSH :**
+**To read it from SSH:**
 ```bash
 tail -50 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
-(affiche les 50 dernières lignes — celles du dernier lancement)
+(shows the last 50 lines — those from the last run)
 
-**Pour le lire depuis DSM :**
-Ouvre **File Station**, navigue vers `/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/`,
-double-clique sur `album.log`.
+**To read it from DSM:**
+Open **File Station**, navigate to `/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/`,
+double-click `album.log`.
 
-Une ligne d'erreur ressemble à :
+An error line looks like:
 ```
-2026-05-15 06:00:12 | ERROR    | Erreur d'authentification : ...
+2026-05-15 06:00:12 | ERROR    | Authentication error: ...
 ```
-Le texte après les deux-points explique la cause.
+The text after the colon explains the cause.
 
 ---
 
-## ⚙️ Configuration — que mettre dans `config.yml`
+## ⚙️ Configuration — what to put in `config.yml`
 
-Voici le fichier expliqué ligne par ligne. Les lignes qui commencent par `#` sont des commentaires ignorés par le script.
+Here is the file explained line by line. Lines starting with `#` are comments ignored by the script.
 
 ```yaml
 synology:
-  host: "http://192.168.X.X"      # L'adresse IP de ton NAS sur le réseau local
-  port: 5000                      # 5000 = connexion standard, 5001 = connexion chiffrée (HTTPS)
-  username: "script_user"         # Le compte dédié qui se connecte pour créer les albums (≠ ton compte SSH your_user)
-  password: "mon_mot_de_passe"    # Son mot de passe — ne partage JAMAIS ce fichier
+  host: "http://192.168.X.X"      # Your NAS IP address on the local network
+  port: 5000                       # 5000 = standard connection, 5001 = encrypted (HTTPS)
+  username: "script_user"          # The dedicated account that creates the albums (≠ your SSH account your_user)
+  password: "your_password"        # Its password — NEVER share this file
 
 album:
-  name_prefix: "Album du jour"    # Le début du nom de chaque album (suivi du thème)
-  photo_count: 30                 # Nombre de photos dans chaque album
+  name_prefix: "Daily Album"       # The beginning of each album name (followed by the theme)
+  photo_count: 30                  # Number of photos in each album
 
 cache:
-  max_age_hours: 24               # Le script reliste toutes les photos toutes les 24h
-  force_refresh: false            # Passe à true pour forcer une relecture complète au prochain lancement
+  max_age_hours: 24                # The script re-lists all photos every 24h
+  force_refresh: false             # Set to true to force a full re-read on next run
 
 themes:
-  rotation: "anniversary,season,random"    # Ordre de rotation des thèmes
-  anniversary_years_back: "1,2,3,5,10"    # Années en arrière pour le thème anniversaire
-  # exclude_paths: "19*,VHS*,Archives"     # Dossiers à ne jamais inclure (les * sont des jokers)
-  no_repeat_days_anniversary: 30           # Une photo d'anniversaire ne revient pas avant 30 jours
-  no_repeat_days_season: 30               # Idem pour le thème saison
-  no_repeat_days_random: 30               # Idem pour le thème aléatoire (0 = désactivé)
+  rotation: "anniversary,season,random"    # Theme rotation order
+  anniversary_years_back: "1,2,3,5,10"    # Years back for the anniversary theme
+  # exclude_paths: "19*,VHS*,Archives"     # Folders to never include (* are wildcards)
+  no_repeat_days_anniversary: 30           # An anniversary photo doesn't reappear for 30 days
+  no_repeat_days_season: 30               # Same for the season theme
+  no_repeat_days_random: 30               # Same for the random theme (0 = disabled)
 
 logs:
-  retention_days: 30              # Nombre de jours de logs conservés
-  level: "INFO"                   # INFO = normal | DEBUG = très détaillé (pour déboguer)
+  retention_days: 30               # Number of days of logs to keep
+  level: "INFO"                    # INFO = normal | DEBUG = very detailed (for debugging)
 ```
 
-### Les thèmes en détail
+### Themes in detail
 
-| Nom | Ce que ça donne |
+| Name | What it does |
 |---|---|
-| `anniversary` | Photos prises autour de la même date du calendrier (± quelques jours) dans les années précédentes. Ex : le 15 mai, il cherche des photos du 15 mai 2024, 2022, 2020, 2015… |
-| `season` | Photos prises pendant le même mois que aujourd'hui, toutes années confondues. En mai → photos de tous les mois de mai. |
-| `random` | Tirage au sort dans toute la bibliothèque. |
+| `anniversary` | Photos taken around the same calendar date (± a few days) in previous years. E.g.: on May 15, it looks for photos from May 15, 2024, 2022, 2020, 2015… |
+| `season` | Photos taken during the same month as today, across all years. In May → photos from every May. |
+| `random` | Random draw from the entire library. |
 
-La valeur `rotation: "anniversary,season,random"` signifie que les thèmes tournent dans cet ordre, jour après jour. Avec 3 thèmes : jour 1 → anniversaire, jour 2 → saison, jour 3 → aléatoire, jour 4 → anniversaire, etc.
+The value `rotation: "anniversary,season,random"` means themes rotate in that order, day after day. With 3 themes: day 1 → anniversary, day 2 → season, day 3 → random, day 4 → anniversary, etc.
 
-### Éviter les répétitions de photos
+### Avoiding photo repetition
 
-Par défaut, une photo qui a déjà été montrée dans un album ne réapparaît pas pendant **30 jours** pour ce même thème. Cette fenêtre est configurable indépendamment pour chaque thème :
+By default, a photo that has already appeared in an album won't reappear for **30 days** for that same theme. This window is configurable independently for each theme:
 
 ```yaml
 themes:
-  no_repeat_days_anniversary: 30   # jours de "quarantaine" pour le thème anniversaire
-  no_repeat_days_season: 30        # idem pour saison
-  no_repeat_days_random: 30        # idem pour aléatoire
+  no_repeat_days_anniversary: 30   # "quarantine" days for the anniversary theme
+  no_repeat_days_season: 30        # same for season
+  no_repeat_days_random: 30        # same for random
 ```
 
-**Exemples de réglage :**
+**Configuration examples:**
 
-| Cas | Réglage |
+| Case | Setting |
 |---|---|
-| Bibliothèque de moins de 500 photos → risque de manque | Réduire à `14` ou `7` |
-| Grande bibliothèque, pas de répétition pendant 2 mois | Mettre à `60` |
-| Désactiver complètement pour un thème | Mettre à `0` |
+| Library of fewer than 500 photos → risk of running out | Reduce to `14` or `7` |
+| Large library, no repetition for 2 months | Set to `60` |
+| Completely disable for a theme | Set to `0` |
 
-**Ce qui se passe si toutes les photos sont en quarantaine** (bibliothèque trop petite) : le script ignore la contrainte de non-répétition pour ce lancement et choisit quand même des photos. Un avertissement est écrit dans les logs.
+**What happens if all photos are in quarantine** (library too small): the script ignores the no-repeat constraint for that run and picks photos anyway. A warning is written to the logs.
 
-L'historique est stocké dans `cache/history.json`. Il est purgé automatiquement — seules les entrées dans la plus grande fenêtre configurée sont conservées.
+History is stored in `cache/history.json`. It is purged automatically — only entries within the largest configured window are kept.
 
 ---
 
-### Exclure des dossiers
+### Excluding folders
 
-Si tu as des dossiers que tu ne veux jamais voir dans les albums (numérisations VHS, archives de travail, etc.) :
+If you have folders you never want to appear in the albums (VHS scans, work archives, etc.):
 
 ```yaml
-  exclude_paths: "VHS*,19*,Travail,Famille/Archives"
+  exclude_paths: "VHS*,19*,Work,Family/Archives"
 ```
 
-- `VHS*` → tous les dossiers dont le nom commence par `VHS`
-- `19*` → tous les dossiers dont le nom commence par `19` (ex : `1994`, `1998`)
-- `Travail` → exactement le dossier nommé `Travail`
-- `Famille/Archives` → le sous-dossier `Archives` à l'intérieur de `Famille`
+- `VHS*` → all folders whose name starts with `VHS`
+- `19*` → all folders whose name starts with `19` (e.g. `1994`, `1998`)
+- `Work` → exactly the folder named `Work`
+- `Family/Archives` → the `Archives` subfolder inside `Family`
 
-Après avoir modifié cette liste, relance avec `--rebuild-index` pour reconstruire la liste des photos :
+After modifying this list, re-run with `--rebuild-index` to rebuild the photo list:
 
 ```bash
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
@@ -393,27 +391,27 @@ Après avoir modifié cette liste, relance avec `--rebuild-index` pour reconstru
 
 ---
 
-## 🔄 Modifier la fréquence ou les thèmes
+## 🔄 Changing frequency or themes
 
-### Changer l'heure de lancement
+### Changing the run time
 
-Dans DSM → **Planificateur de tâches**, double-clique sur la tâche `Album du jour`, onglet **Planifier**, change l'heure.
+In DSM → **Task Scheduler**, double-click the `Daily Album` task, **Schedule** tab, change the time.
 
-### Activer ou désactiver un thème
+### Enabling or disabling a theme
 
-Dans `config.yml`, modifie la ligne `rotation`. Par exemple pour n'avoir que des albums aléatoires :
+In `config.yml`, modify the `rotation` line. For example, to have only random albums:
 
 ```yaml
   rotation: "random"
 ```
 
-Pour alterner uniquement anniversaires et saison :
+To alternate only anniversaries and season:
 
 ```yaml
   rotation: "anniversary,season"
 ```
 
-### Forcer un thème manuellement (pour tester)
+### Forcing a theme manually (for testing)
 
 ```bash
 PYTHON=/volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python
@@ -427,15 +425,15 @@ $PYTHON $MAIN --config $CONFIG --theme season
 
 ---
 
-## 🔍 Dépannage — si l'album n'est pas mis à jour le matin
+## 🔍 Troubleshooting — if the album isn't updated in the morning
 
-### 1. Regarder les logs
+### 1. Check the logs
 
 ```bash
 tail -50 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 
-### 2. Relancer manuellement en mode verbeux
+### 2. Re-run manually in verbose mode
 
 ```bash
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
@@ -444,9 +442,9 @@ tail -50 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
   --debug
 ```
 
-Un message `ERROR` ou `WARNING` indique où ça coince.
+An `ERROR` or `WARNING` message shows where things went wrong.
 
-### 3. Tester la connexion sans rien modifier
+### 3. Test the connection without changing anything
 
 ```bash
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
@@ -455,9 +453,9 @@ Un message `ERROR` ou `WARNING` indique où ça coince.
   --dry-run --debug
 ```
 
-### 4. Reconstruire la liste des photos
+### 4. Rebuild the photo list
 
-Si le script dit que l'index est vide ou qu'aucune photo n'est trouvée :
+If the script says the index is empty or no photos are found:
 
 ```bash
 /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python \
@@ -466,107 +464,107 @@ Si le script dit que l'index est vide ou qu'aucune photo n'est trouvée :
   --rebuild-index --debug
 ```
 
-### 5. Problèmes courants
+### 5. Common problems
 
-| Symptôme | Cause probable | Solution |
+| Symptom | Likely cause | Solution |
 |---|---|---|
-| `Erreur d'authentification` | Mauvais identifiant ou mot de passe | Vérifie `username` et `password` dans `config.yml` |
-| `L'index est vide` | Le compte n'a pas accès à l'espace partagé | Dans Synology Photos → Paramètres → Espace partagé → Autorisations, ajoute le compte `script_user` |
-| `Erreur de configuration` | `config.yml` mal rempli ou absent | Vérifie que le fichier existe et que toutes les sections sont présentes |
-| Les albums ne sont plus partagés | L'album a été supprimé et recréé manuellement | Reconfigurer le partage dans Synology Photos (voir Étape H) |
-| Aucune photo pour le thème anniversaire | Pas de photos à cette date dans les années passées | Normal : le script bascule automatiquement sur le thème aléatoire |
-| Des photos se répètent malgré la non-répétition | Bibliothèque trop petite pour la fenêtre configurée | Réduire `no_repeat_days_*` dans `config.yml`, ou vérifier le log (`Toutes les photos du pool sont dans l'historique`) |
-| La tâche planifiée ne se lance pas | Mauvais utilisateur sélectionné | Vérifie que l'utilisateur dans le Planificateur a les droits sur le répertoire du script |
+| `Authentication error` | Wrong username or password | Check `username` and `password` in `config.yml` |
+| `Index is empty` | The account doesn't have access to the shared space | In Synology Photos → Settings → Shared Space → Permissions, add the `script_user` account |
+| `Configuration error` | `config.yml` incorrectly filled or missing | Check the file exists and all sections are present |
+| Albums no longer shared | The album was deleted and manually recreated | Reconfigure sharing in Synology Photos (see Step H) |
+| No photos for the anniversary theme | No photos taken around this date in past years | Normal: the script automatically falls back to random theme |
+| Photos repeat despite no-repeat setting | Library too small for the configured window | Reduce `no_repeat_days_*` in `config.yml`, or check the log (`All photos in the pool are in history`) |
+| Scheduled task doesn't run | Wrong user selected | Check that the user in Task Scheduler has rights to the script directory |
 
 ---
 
-## ⚠️ Limites connues
+## ⚠️ Known limitations
 
-- **Le partage des albums doit être configuré à la main.** L'API Synology Photos ne permet pas d'ajouter des utilisateurs invités via un script — cette action doit être faite une fois dans l'interface web.
+- **Album sharing must be configured manually.** The Synology Photos API doesn't allow adding invited users via a script — this must be done once in the web interface.
 
-- **Les photos sans date de prise de vue sont ignorées par le thème anniversaire.** Les fichiers sans métadonnées n'apparaissent que dans le thème aléatoire.
+- **Photos without an EXIF date are ignored by the anniversary theme.** Files without metadata only appear in the random theme.
 
-- **Le thème anniversaire peut ne rien trouver.** Si aucune photo n'a été prise autour de la date courante dans les années passées, le script bascule automatiquement sur le thème aléatoire.
+- **The anniversary theme may find nothing.** If no photos were taken around the current date in previous years, the script automatically falls back to the random theme.
 
-- **Un seul album par thème.** Si le script tourne deux fois le même jour, il remplace simplement les photos — pas de doublon.
+- **One album per theme.** If the script runs twice on the same day, it simply replaces the photos — no duplicates.
 
-- **L'index des photos est mis en cache 24h.** Si tu ajoutes de nouvelles photos sur le NAS, relance avec `--rebuild-index` pour qu'elles soient prises en compte immédiatement.
+- **The photo index is cached for 24h.** If you add new photos to the NAS, re-run with `--rebuild-index` to include them immediately.
 
 ---
 
-## 📋 POUR L'UTILISATEUR
+## 📋 FOR THE USER
 
-### Check-list de validation — à cocher dans l'ordre
+### Validation checklist — check in order
 
 ```
 INSTALLATION
-  [ ] A. SSH activé dans DSM (Panneau de configuration → Terminal et SNMP)
-  [ ] B. PuTTY installé, connexion SSH testée avec succès
-           PuTTY → Host: 192.168.X.X, Port: 22 → connecté en your_user
-  [ ] C. Projet copié sur le NAS avec scp (depuis PowerShell sur le PC)
+  [ ] A. SSH enabled in DSM (Control Panel → Terminal & SNMP)
+  [ ] B. PuTTY installed, SSH connection tested successfully
+           PuTTY → Host: 192.168.X.X, Port: 22 → connected as your_user
+  [ ] C. Project copied to NAS with scp (from PowerShell on PC)
            scp -r "C:\...\Album" your_user@NAS_IP:/volume1/homes/YOUR_USER/download/AlbumPhotoAuto
-  [ ] D. Script d'installation lancé sans erreur rouge (depuis PuTTY sur le NAS)
+  [ ] D. Installation script run without red errors (from PuTTY on NAS)
            cd /volume1/homes/YOUR_USER/download/AlbumPhotoAuto
            bash scripts/install_on_dsm.sh
-  [ ] E. config.yml rempli avec l'IP, le compte et le mot de passe du NAS
+  [ ] E. config.yml filled with the NAS IP, account, and password
 
-TEST
-  [ ] F. Simulation OK (aucune erreur, photos sélectionnées)
+TESTING
+  [ ] F. Simulation OK (no errors, photos selected)
            ... main.py --dry-run --debug
-  [ ] G. Premier vrai lancement OK (albums visibles dans Synology Photos)
+  [ ] G. First real run OK (albums visible in Synology Photos)
            ... main.py --debug
-  [ ] H. Albums partagés manuellement dans Synology Photos
-           (Albums → ⋯ → Partager → Inviter → Visionneur)
-           Album du jour — Anniversaires  [ ]
-           Album du jour — Saison         [ ]
-           Album du jour — Aleatoire      [ ]
+  [ ] H. Albums shared manually in Synology Photos
+           (Albums → ⋯ → Share → Invite → Viewer)
+           Daily Album — Anniversaries  [ ]
+           Daily Album — Season         [ ]
+           Daily Album — Random         [ ]
 
-AUTOMATISATION
-  [ ] I. Tâche planifiée créée dans DSM (Planificateur de tâches)
-           Utilisateur : your_user
-           Heure       : 06:00
-           Commande    : /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python
-                         /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py
-                         --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
-  [ ] J. "Exécuter maintenant" testé → album mis à jour dans Synology Photos
-  [ ] K. Logs vérifiés (aucune ligne ERROR)
+AUTOMATION
+  [ ] I. Scheduled task created in DSM (Task Scheduler)
+           User    : your_user
+           Time    : 06:00
+           Command : /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/.venv/bin/python
+                     /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/main.py
+                     --config /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/config.yml
+  [ ] J. "Run Now" tested → album updated in Synology Photos
+  [ ] K. Logs checked (no ERROR lines)
            /volume1/homes/YOUR_USER/Job/AlbumPhotoAuto/logs/album.log
 ```
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                   RÉSUMÉ EN UNE PAGE                         │
+│                      ONE-PAGE SUMMARY                        │
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
-│  FICHIER À NE JAMAIS PARTAGER : config.yml                   │
-│  (contient ton mot de passe NAS)                             │
+│  FILE TO NEVER SHARE: config.yml                             │
+│  (contains your NAS password)                                │
 │                                                              │
-│  CE QUI TOURNE TOUT SEUL (ne touche à rien) :               │
-│  → Le script se lance chaque matin à 06:00                   │
-│  → Il remplace les photos dans les albums existants          │
-│  → Si un album n'existe pas encore, il le crée               │
+│  WHAT RUNS AUTOMATICALLY (don't touch):                      │
+│  → Script runs every morning at 06:00                        │
+│  → It replaces photos in the existing albums                 │
+│  → If an album doesn't exist yet, it creates it              │
 │                                                              │
-│  CE QUI NE SE FAIT QU'UNE SEULE FOIS (à la main) :          │
-│  → Configurer qui voit chaque album dans Synology Photos     │
-│    (Albums → ⋯ → Partager → Inviter → Visionneur)           │
+│  WHAT IS DONE ONLY ONCE (manually):                          │
+│  → Configure who sees each album in Synology Photos          │
+│    (Albums → ⋯ → Share → Invite → Viewer)                   │
 │                                                              │
-│  SI QUELQUE CHOSE NE MARCHE PAS :                            │
-│  1. Lire : logs/album.log (dernières lignes)                 │
-│  2. SSH sur le NAS et relancer avec --debug                  │
-│  3. Résultats de la tâche dans le Planificateur DSM          │
+│  IF SOMETHING DOESN'T WORK:                                  │
+│  1. Read: logs/album.log (last lines)                        │
+│  2. SSH to the NAS and re-run with --debug                   │
+│  3. Task results in DSM Task Scheduler                       │
 │                                                              │
-│  TESTER SANS RIEN MODIFIER :                                 │
+│  TEST WITHOUT CHANGING ANYTHING:                             │
 │  → main.py --dry-run --debug                                 │
 │                                                              │
-│  FORCER UN THÈME :                                           │
+│  FORCE A THEME:                                              │
 │  → main.py --theme random                                    │
 │  → main.py --theme anniversary                               │
 │  → main.py --theme season                                    │
 │                                                              │
-│  ALBUMS (noms dans Synology Photos) :                        │
-│  → "Album du jour — Anniversaires"                           │
-│  → "Album du jour — Saison"                                  │
-│  → "Album du jour — Aleatoire"                               │
+│  ALBUMS (names in Synology Photos):                          │
+│  → "Daily Album — Anniversaries"                             │
+│  → "Daily Album — Season"                                    │
+│  → "Daily Album — Random"                                    │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 ```
