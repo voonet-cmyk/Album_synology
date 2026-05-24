@@ -1,0 +1,31 @@
+# Modèle de configuration — copie ce fichier en "config.yml" et remplis tes valeurs.
+# Ne partage JAMAIS config.yml (il contient ton mot de passe).
+
+synology:
+  host: "https://ton-nas.quickconnect.to"   # URL QuickConnect ou IP locale
+  port: 5001                                 # 5001 = HTTPS, 5000 = HTTP
+  username: "ton_login"
+  password: "ton_mot_de_passe"
+  # otp_secret: "XXXX"   # Décommente uniquement si la 2FA est activée sur ton compte
+
+album:
+  name_prefix: "Album du jour"   # Préfixe visible dans Synology Photos
+  photo_count: 30                 # Nombre de photos par album
+  # share_with: "voonet,Candice,lou"   # Usernames séparés par virgule → partage restreint
+  #                                    # Laisser vide (ou absent) → lien public via passphrase
+
+cache:
+  max_age_hours: 24     # Reconstruit l'index si le cache a plus de N heures
+  force_refresh: false  # Passe à true pour forcer la reconstruction au prochain lancement
+
+themes:
+  rotation: "anniversary,season,random"
+  anniversary_years_back: "1,2,3,5,10"
+  # exclude_paths: "Famille/Archives,Travail,tmp"   # chemins à ne jamais inclure (séparés par des virgules)
+  no_repeat_days_anniversary: 30   # une même photo d'anniversaire ne revient pas avant 30 jours
+  no_repeat_days_season: 30        # idem pour le thème saison
+  no_repeat_days_random: 30        # idem pour le thème aléatoire (0 = désactivé)
+
+logs:
+  retention_days: 30
+  level: "INFO"                   # INFO = normal | DEBUG = très bavard (pour dépannage)

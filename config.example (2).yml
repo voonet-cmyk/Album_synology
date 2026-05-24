@@ -1,0 +1,31 @@
+# Configuration personnelle — NE PAS PARTAGER
+
+synology:
+  host: "http://192.168.1.142"
+  port: 5000
+  username: "robot"
+  password: "2=P#9MKn"
+  # otp_secret: "XXXX"
+
+album:
+  name_prefix: "Album du jour"
+  photo_count: 50
+  share_with: "voonet,Candice,lou" 
+
+cache:
+  # Reconstruit l'index si le cache a plus de N heures
+  max_age_hours: 24
+  # Passe à true pour forcer la reconstruction au prochain lancement
+  force_refresh: false
+
+themes:
+  rotation: "anniversary,season,random"
+  anniversary_years_back: "1,2,3,5,10"
+  exclude_paths: "19*,VHS*,MobileBackup,iphone*,200700*"
+  no_repeat_days_anniversary: 30
+  no_repeat_days_season: 30
+  no_repeat_days_random: 30
+
+logs:
+  retention_days: 30
+  level: "INFO"
